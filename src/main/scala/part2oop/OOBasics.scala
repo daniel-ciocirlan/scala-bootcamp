@@ -129,6 +129,10 @@ object OOBasics {
     println(counter.count)
     val newCounter = counter.increment(10) // returns a NEW instance!
     println(newCounter.count)
+
+    val greatExpectations = new Novel("Great Expectations", new Author("Charles", "Dickens", 1865), 2022)
+    //                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    //                                                           an instance of Author
   }
 }
 
