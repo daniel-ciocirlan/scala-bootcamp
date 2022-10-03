@@ -31,7 +31,7 @@ object CaseClasses {
 
   // 5 - serializable = can be turned into bytes to be read by other JVMs
 
-  // 6 - can be deconstructed easily with pattern matching***
+  // 6 - can be deconstructed easily with pattern matching
 
   /*
    restrictions:

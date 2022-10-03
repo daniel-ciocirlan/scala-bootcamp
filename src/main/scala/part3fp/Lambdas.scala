@@ -39,6 +39,7 @@ object Lambdas {
   val superAdder: Int => Int => Int = x => y => x + y
   //                                  ^    ^    ^^^^^
   //                                 Int  Int   MUST BE an Int
+  // CURRIED function
 
   /*
     functions which

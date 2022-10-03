@@ -26,12 +26,9 @@ object Functions {
   val parameterlessFunctionInvocation = aParameterlessFunction // the invocation of the function
 
   /*
-    sc("Scala", 3) = "Scala" + sc("Scala", 2)
-    sc("Scala", 2) = "Scala" + sc("Scala", 1)
-    sc("Scala", 1) = "Scala"
-
-    => sc("Scala", 2) = "Scala" + sc("Scala", 1) = "Scala" + "Scala" = "ScalaScala"
-    => sc("Scala", 3) = "Scala" + sc("Scala", 2) = "Scala" + "ScalaScala" = "ScalaScalaScala"
+  sc("hello", 3) = "hello" + sc("hello", 2) = "hello" + "hellohello" = "hellohellohello"
+  sc("hello", 2) = "hello" + sc("hello", 1) = "hello" + "hello" = "hellohello"
+  sc("hello", 1) = "hello"
    */
   // functions can be recursive
   def stringConcatenation(string: String, n: Int): String =
