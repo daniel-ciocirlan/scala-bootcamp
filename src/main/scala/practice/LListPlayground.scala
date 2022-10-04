@@ -26,6 +26,7 @@ abstract class LList[A] {
     [3,2,5,4,1].add(100) = [100,3,2,5,4,1]
    */
   def add(element: A): LList[A] = new NonEmpty(element, this)
+  def ::(element: A): LList[A] = add(element)
 
 
   // part of the Any type, overriding here
@@ -212,8 +213,10 @@ object LList { // companion object
       if(number > hi) acc
       else countOut(number + 1, NonEmpty[Int](number, acc))
     }
-    countOut(low, Empty[Int]).reverse
+    countOut(low, Empty[Int]()).reverse
   }
+
+  def empty[A]: LList[A] = Empty[A]()
 }
 
 
@@ -318,7 +321,9 @@ object LListPlayground {
     println(combinations_ex2)
     println(combinations_ex2_v2)
 
-    aList add 0
+    // testing funky methods
+    val onetwothree = 1 :: 2 :: 3 :: LList.empty
+    println(onetwothree)
   }
 }
 

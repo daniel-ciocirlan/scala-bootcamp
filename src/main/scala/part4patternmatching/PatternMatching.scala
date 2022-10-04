@@ -39,7 +39,7 @@ object PatternMatching {
   sealed class Animal
 
   case class Dog(breed: String) extends Animal
-
+  class Puppy extends Dog("unknown")
   case class Cat(meowStyle: String) extends Animal
 
   def fetchAnimal(): Animal = // someone else wrote this method and you can only call it
