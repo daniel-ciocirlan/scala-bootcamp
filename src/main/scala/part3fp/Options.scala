@@ -151,7 +151,28 @@ object Options {
     case None => "No connection"
   }
 
+  // Morning workout
+  // 1
+  val morningOption: Option[List[Option[Int]]] = Option(List(Option(1), Option(2)))
+  //               ^ what type is this?
+  val morningOption2: List[Option[List[Int]]] = List(Option(List(1,2,3)))
+  val morningOption3: List[Option[List[Any]]] = List(Option(List("scala", 2)), Option.empty)
+  val morningOption4: List[Option[List[(String, Int)]]] = List(Option(List(("scala", 2))))
+
+  // 2
+  val maybeString: Option[String] = Some("Scala") // language
+  val maybeInt: Option[Int] = Some(42) // meaning of life
+  val maybeTime: Option[Int] = Some(15) // time
+  // return "The meaning of life is $meaningOfLife, learning $language at $time"
+
+  val statement = for {
+    lang <- maybeString
+    mol <- maybeInt
+    time <- maybeTime
+  } yield s"The meaning of life is $mol, learning $lang at $time"
+
+
   def main(args: Array[String]): Unit = {
-    println(connectionDetails_v3.getOrElse("No connection"))
+    println(statement.getOrElse("Unknown statement"))
   }
 }

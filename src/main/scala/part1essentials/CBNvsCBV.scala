@@ -46,6 +46,7 @@ object CBNvsCBV {
   }
 
   def main(args: Array[String]): Unit = {
-     functionWithDangerousArgCBN(throw new RuntimeException())
+    println(aFunction(1 + 2)) // argument is evaluated BEFORE the function invocation, so we get aFunction(3)
+    println(aByNameFunction(1 + 2)) // arg is NOT evaluated UNTIL used in the function body
   }
 }
