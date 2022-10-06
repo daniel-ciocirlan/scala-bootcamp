@@ -49,8 +49,64 @@ object Implicits {
   val aRange = 1 to 10 // the 'to' method is an extension method
 
   // exercise: enrich the String class such that math expressions work like in JS
+  implicit class RichString(string: String) {
+    def /(n: Int): Int =
+      string.toInt / n
+
+    // extension methods DO NOT override existing methods on that type
+    def +(n: Int): Int =
+      string.toInt + n
+  }
+
+  // 3 - implicit conversions (discouraged)
+  case class Person(name: String) {
+    def greet: String = s"Hi, I'm $name."
+  }
+
+  object Person {
+    // best practice: if you have an implicit value that makes THE MOST SENSE for your type, place it in the companion object for the type
+    implicit val personOrdering: Ordering[Person] = Ordering.fromLessThan((a,b) => a.name < b.name)
+  }
+
+  // implicit methods with ONE argument enable conversions
+  implicit def string2Person(string: String): Person =
+    Person(string)
+
+  val danielsGreetingStandard = string2Person("Daniel").greet
+  val danielsGreetingMagic = "Daniel".greet // compiler rewrites this to string2Person("Daniel").greet
+
+  // can replace a required type with something that can be implicitly converted
+  def makePersonTalk(person: Person): String = person.greet
+  val danielTalks = makePersonTalk(Person("Daniel")) // normal way, passing a Person instance
+  val danielTalksMagic = makePersonTalk("Daniel") // "Daniel" automatically converted to Person via string2Person("Daniel")
+
+  /*
+    Organizing implicits
+   */
+
+  // Places where the compiler looks for implicits if you call a method with implicit arguments:
+  // 1 - local scope = the scope where the method is being invoked
+  // implicit val reverseOrdering: Ordering[Int] = Ordering.fromLessThan((a, b) => a > b)
+
+  // 2 - imported scope = all objects and packages imported explicitly
+  // import MyImplicits._ // <- implicit Ordering[Int] will be used from HERE
+
+  // 3 - all companion objects of all types involved in the method call
+  // for sorted: companion of List, companion object of Int, companion object of Ordering
+  // it happens that there is an implicit Ordering[Int] in the companion object of Int
+
+  val aList = List(1,4,2,5,3)
+  val sortedList = aList.sorted // needs an implicit Ordering[Int]
+
+  val people = List(Person("Zod"), Person("Spider-Man"), Person("Alice"))
+  val alphabeticList = people.sorted // needs an implicit Ordering[Person]
 
   def main(args: Array[String]): Unit = {
-    (1.to(10)).foreach(println)
+    println(sortedList)
+    println(alphabeticList)
   }
+}
+
+object MyImplicits {
+  implicit val reverseOrdering: Ordering[Int] = Ordering.fromLessThan((a, b) => a > b)
 }
