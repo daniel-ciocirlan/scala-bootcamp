@@ -124,7 +124,7 @@ object HandlingFailure {
     }
   }
 
-  // TODO: try obtaining a Connection instance from host and port, then call the fetchPage method and print the HTML.
+  // try obtaining a Connection instance from host and port, then call the fetchPage method and print the HTML.
   // Any errors should be displayed to the console.
   def maybePage() = for {
     conn <- Try(HttpService.getConnection(host, port))

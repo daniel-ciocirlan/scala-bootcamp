@@ -26,15 +26,16 @@ object Futures {
     // prints 42 once per second
   }
 
+  // necessary boilerplate for multithreaded computations
   val executor = Executors.newFixedThreadPool(1) // 16 JVM threads so that we can run some computations in parallel
-  implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(executor) // boilerplate
+  implicit val executionContext: ExecutionContext = ExecutionContext.fromExecutorService(executor)
 
   def demoParallelExecution(): Unit = {
-    val future: Future[Int] = Future.apply(computeMeaningOfLife())(executionContext /* <-- the execution context */)
+    val future: Future[Int] = Future(computeMeaningOfLife())(executionContext /* <-- the execution context */)
     //                                      ^^^^^^^^^^^^^^^^^^^^^^ the code being run
-    val future2: Future[Int] = Future.apply(computeMeaningOfLife())(executionContext /* <-- the execution context */)
-    val future3: Future[Int] = Future.apply(computeMeaningOfLife())(executionContext /* <-- the execution context */)
-    val future4: Future[Int] = Future.apply(computeMeaningOfLife())(executionContext /* <-- the execution context */)
+    val future2: Future[Int] = Future(computeMeaningOfLife())(executionContext /* <-- the execution context */)
+    val future3: Future[Int] = Future(computeMeaningOfLife())(executionContext /* <-- the execution context */)
+    val future4: Future[Int] = Future(computeMeaningOfLife())(executionContext /* <-- the execution context */)
 
     val sumFuture = for {
       a <- future
@@ -65,7 +66,7 @@ object Futures {
     x <- aFuture
     product <- Future(x * computeMeaningOfLife()) // this Future depends on the previous one finishing
     px10 <- Future(10 * product * computeMeaningOfLife())
-  } yield px10 // a Future taking 3s to compute, storing 42 * 42 * 10
+  } yield px10 // a Future taking 3s to compute, storing 42 * 42 * 42 * 10
   // deconstructed: aFuture.flatMap(x => Future(x * computeMeaningOfLife()).flatMap(product => Future(10 * product * computeMeaningOfLife()).map(px10 => px10))
 
   // checking for completion
@@ -113,6 +114,25 @@ object Futures {
     action().filter(predicate).recoverWith {
       case _ => retryUntil(action, predicate)
     }
+
+  // TODO: a version of retryUntil up to a max number of retries
+  // if you've exceeded the number of retries, return a failed Future with a RuntimeException("max retries exceeded")
+  def retryN[A](action: () => Future[A], predicate: A => Boolean, maxRetries: Int): Future[A] =
+    action().filter(predicate).recoverWith {
+      case _ =>
+        if (maxRetries > 0) retryN(action, predicate, maxRetries - 1)
+        else Future(throw new RuntimeException("max retries exceeded"))
+    }
+
+  def retryN_v2[A](action: () => Future[A], predicate: A => Boolean, maxRetries: Int): Future[A] = {
+    def retry(counter: Int = 0): Future[A] =
+      if (counter >= maxRetries) Future(throw new RuntimeException("max retries exceeded"))
+      else action().filter(predicate).recoverWith {
+        case _ => retry(counter + 1)
+      }
+
+    retry()
+  }
 
   def testRetryUntil(): Unit = {
     val action = () => Future {
