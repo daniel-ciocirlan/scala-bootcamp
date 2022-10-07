@@ -142,15 +142,15 @@ abstract class LList[A] {
       - returns a new SORTED list WITH THE ELEMENT INSIDE
 
     [1,2,4,5].insert(3, myComparison) = [1,2,3,4,5]
-    [].insert(3, myComparison) = [1]
+    [].insert(3, myComparison) = [3]
     [1,2,3,4,5].insert(0, myComparison) = [0,1,2,3,4,5]
     [1,2,3,4,5].insert(6, myComparison) = [1,2,3,4,5,6]
     [1,2,3,4,5].insert(4, myComparison) = [1,2,3,4,4,5]
     [1,3,5,10,100].insert(23, myComparison) = [1,3,5,10,23,100]
    */
-  def insert(element: A, compare: (A,A) => Int): LList[A] = ???
+  def insert(element: A, compare: (A,A) => Int): LList[A]
 
-  def sort(compare: (A, A) => Int) = ???
+  def sort(compare: (A, A) => Int): LList[A]
 }
 
 case class Empty[A]() extends LList[A] {
@@ -170,6 +170,11 @@ case class Empty[A]() extends LList[A] {
   def zipWith_v2[B,C](anotherList: LList[B], combinator: (A,B) => C): LList[C] =
     if (!anotherList.isEmpty) throw new RuntimeException
     else Empty[C]()
+
+  override def insert(element: A, compare: (A, A) => Int) =
+    NonEmpty(element, Empty())
+
+  override def sort(compare: (A, A) => Int): LList[A] = this
 }
 
 case class NonEmpty[A](firstElement: A, rest: LList[A]) extends LList[A] {
@@ -229,6 +234,17 @@ case class NonEmpty[A](firstElement: A, rest: LList[A]) extends LList[A] {
   def zipWith_v2[B,C](anotherList: LList[B], combinator: (A,B) => C): LList[C] =
     if (anotherList.isEmpty) throw new RuntimeException
     else NonEmpty[C](combinator(head, anotherList.head), tail.zipWith(anotherList.tail, combinator))
+
+  // [1,2,3].insert(4) = [0, ...]
+  override def insert(element: A, compare: (A, A) => Int) =
+    if (compare(element, head) <= 0) NonEmpty(element, this)
+    else NonEmpty(head, tail.insert(element, compare))
+
+  // [3 ...]
+  override def sort(compare: (A, A) => Int): LList[A] = {
+    val sortedTail: LList[A] = tail.sort(compare)
+    sortedTail.insert(head, compare)
+  }
 }
 
 // LList.make(1, 10) = [1,2,3,4,5,6,7,8,9,10]
@@ -351,6 +367,28 @@ object LListPlayground {
     val onetwothree = 1 :: 2 :: 3 :: LList.empty
     println(onetwothree)
     println(onetwothree.mkString("----"))
+
+    // testing inserting and sorting
+    val naturalComparison: (Int, Int) => Int = (x, y) => {
+      if (x < y) -1
+      else if (x == y) 0
+      else 1
+    }
+
+    val reverseOrdering: (Int, Int) => Int = (x, y) =>
+      if (x > y) -1 // x should stay before y
+      else if (x == y) 0
+      else 1
+
+    println((1 :: 2 :: 4 :: 5 :: LList.empty).insert(3, naturalComparison)) // [1,2,3,4,5]
+    println((1 :: 2 :: 3 :: LList.empty).insert(0, naturalComparison)) // [0,1,2,3]
+    println((1 :: 2 :: 3 :: LList.empty).insert(4, naturalComparison)) // [1,2,3,4]
+    println((1 :: 2 :: 3 :: LList.empty).insert(2, naturalComparison)) // [1,2,2,3]
+    println(LList.empty[Int].insert(43, naturalComparison)) // [43]
+    // sorting
+    println((3 :: 2 :: 4 :: 1 :: 5 :: LList.empty).sort(naturalComparison)) // [1,2,3,4,5]
+    println((3 :: 2 :: 4 :: 1 :: 5 :: LList.empty).sort(reverseOrdering)) // [5,4,3,2,1]
+
   }
 }
 
