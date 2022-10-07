@@ -28,27 +28,24 @@ abstract class LList[A] {
   def add(element: A): LList[A] = new NonEmpty(element, this)
   def ::(element: A): LList[A] = add(element)
 
+  @tailrec
+  private def enumerateElements(list: LList[A], acc: String, sep: String): String = {
+    if (list.isEmpty) acc // empty list
+    else if (acc.isEmpty) enumerateElements(list.tail, s"${list.head}", sep) // placing my first element
+    else enumerateElements(list.tail, s"$acc$sep${list.head}", sep) // list with more than one element
+  }
 
   // part of the Any type, overriding here
   override def toString = {
     /*
-      [1,2,3,...20000].toString = s"[ ${enum([1,2,3...20000], "")} ]"
-      enum([1,2,3...20000], "") =
-      enum([2,...20k], ", 1") =
-      enum([3,...20k], ", 1, 2") =
-      enum([4,...20k], ", 1, 2, 3") =
-      ...
-      enum([], ", 1, 2, ...., 20k") =
-      ", 1, 2, ...., 20k"
+      enum([1,2,3], "") =
+      enum([2,3], "1") =
+      enum([3], "1, 2") =
+      enum([], "1, 2, 3") =
+      "1, 2, 3"
      */
-    @tailrec
-    def enumerateElements(list: LList[A], acc: String): String = {
-      if (list.isEmpty) acc // empty list
-      else if (acc.isEmpty) enumerateElements(list.tail, s"${list.head}") // placing my first number
-      else enumerateElements(list.tail, s"$acc, ${list.head}") // list with more than one element
-    }
 
-    s"[${enumerateElements(this, "")}]"
+    s"[${enumerateElements(this, "", ", ")}]"
   }
 
   // applies the transformer on ALL elements of this list, returning the list of all the results
@@ -125,6 +122,35 @@ abstract class LList[A] {
   def reduceStackRec(combiner: (A,A) => A, seed: A): A =
     if (this.isEmpty) seed // empty case
     else tail.reduceStackRec(combiner, combiner(seed, head)) // non-empty case
+
+  // [1,2,3].mkString("--") = "1--2--3"
+  // [1,2,3,4].mkString(" ") = "1 2 3 4"
+  def mkString(sep: String): String =
+    enumerateElements(this, "", sep)
+
+  /*
+    compare: (Int, Int) => Int
+
+    compare(x,y) function returns:
+      - -1 if x should stay before y
+      - 1 if y should stay before x
+      - 0 if x and y are "equal"
+
+    Insert:
+      - assume that this list is ALREADY SORTED
+      - takes an element as argument
+      - returns a new SORTED list WITH THE ELEMENT INSIDE
+
+    [1,2,4,5].insert(3, myComparison) = [1,2,3,4,5]
+    [].insert(3, myComparison) = [1]
+    [1,2,3,4,5].insert(0, myComparison) = [0,1,2,3,4,5]
+    [1,2,3,4,5].insert(6, myComparison) = [1,2,3,4,5,6]
+    [1,2,3,4,5].insert(4, myComparison) = [1,2,3,4,4,5]
+    [1,3,5,10,100].insert(23, myComparison) = [1,3,5,10,23,100]
+   */
+  def insert(element: A, compare: (A,A) => Int): LList[A] = ???
+
+  def sort(compare: (A, A) => Int) = ???
 }
 
 case class Empty[A]() extends LList[A] {
@@ -324,6 +350,7 @@ object LListPlayground {
     // testing funky methods
     val onetwothree = 1 :: 2 :: 3 :: LList.empty
     println(onetwothree)
+    println(onetwothree.mkString("----"))
   }
 }
 
