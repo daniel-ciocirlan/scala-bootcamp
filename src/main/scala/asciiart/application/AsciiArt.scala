@@ -4,6 +4,7 @@ import asciiart.asciifier.{Asciifier, PlainTextAsciifier}
 import asciiart.imageloader.{FileLoader, ImageLoader}
 
 import java.awt.Color
+import java.awt.image.BufferedImage
 
 
 trait AsciiArtApplication {
@@ -16,7 +17,10 @@ trait AsciiArtApplication {
     * @param path the path of the image
     * @return a Some containing the String representation of the image, or None if the image could not be loaded
     */
-  def run(path: String): Option[String] = ??? // TODO 3
+  def run(path: String): Option[String] = {
+    val image: Option[BufferedImage] = imageLoader.loadImage(path)
+    image.map(img => asciifier.asciify(img))
+  }
   /*
     You only need to use the loader and asciifier that you are instantiated with.
     1) load the image

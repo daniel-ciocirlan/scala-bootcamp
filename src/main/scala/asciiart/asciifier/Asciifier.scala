@@ -57,8 +57,16 @@ trait Asciifier {
       xxxxxx
 
       mapImage(image)(color => chooseChar(computeBrightness(color))) => Seq(Seq(chars))
+
+
      */
-  def mapImage[A](image: BufferedImage)(f: Color => A): Seq[Seq[A]] = ??? // TODO 1
+  def mapImage[A](image: BufferedImage)(f: Color => A): Seq[Seq[A]] =
+    (0 until image.getHeight).map { rowIndex =>
+      // build an entire row of characters
+      val colors: Seq[Color] = (0 until image.getWidth).map(colIndex => new Color(image.getRGB(rowIndex, colIndex)))
+      colors.map(x => f(x)) // transforms the Seq[Color] into Seq[A]
+      // .. FOR EVERY ROW!
+    }
 }
 
 object Asciifier {
@@ -68,21 +76,7 @@ object Asciifier {
   val asciiChars = List('#','A','@','%','$','+','=','*',':',',','.',' ')
 
   def main(args: Array[String]): Unit = {
-    val asciifier = new Asciifier {
-      /**
-       * Converts an image into a String representation, where
-       * 1) every pixel is converted to an ASCII-readable representation (a Char, a String, etc)
-       * 2) the image is taken as-is, with no scaling or filters of any kind.
-       *
-       * The returned String will contain the appropriate endlines for the pixel rows.
-       *
-       * @param image the input image as a BufferedImage
-       * @return the String representation
-       */
-      override def asciify(image: BufferedImage) = ???
-    }
-    println(asciifier.chooseChar(255))
-    println(asciifier.chooseChar(0))
+    (1 to 10).foreach(println)
   }
 }
 
