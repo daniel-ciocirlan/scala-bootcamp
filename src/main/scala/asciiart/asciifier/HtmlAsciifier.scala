@@ -5,6 +5,37 @@ import java.awt.image.BufferedImage
 
 class HtmlAsciifier extends Asciifier {
 
+  def asciify(image: BufferedImage): String = {
+    val lines: Seq[Seq[(Int, Int, Int, Char)]] = mapImage(image)(color => {
+      (color.getRed, color.getGreen, color.getBlue, chooseChar(computeBrightness(color)))
+    })
+    val rows: Seq[String] = lines.map(tupleSeq => tupleSeq.map(tuple => char2Span(tuple._1, tuple._2, tuple._3, tuple._4)).reduce(_ + _))
+    val finalString: String = rows.mkString("\n")
+
+    s"""
+       |
+       |      <html>
+       |        <body style="padding: 20px;">
+       |          <p style="
+       |            font-family:Courier,monospace;
+       |            font-size:5pt;
+       |            letter-spacing:1px;
+       |            line-height:4pt;
+       |            font-weight:bold">
+       |
+       |            $finalString
+       |
+       |          </p>
+       |        </body>
+       |      </html>
+       |""".stripMargin
+  }
+
+
+  def char2Span(red: Int, green: Int, blue: Int, char: Char): String = {
+    s"<span style=\"display:inline; color:rgb($red, $green, $blue)\">$char</span>"
+  }
+
   /**
     * Converts an image into an HTML block, where every character becomes a <span>.
     * The span is able to keep the color information of the original pixel, through CSS.
@@ -12,7 +43,6 @@ class HtmlAsciifier extends Asciifier {
     * @param image the input image as a BufferedImage
     * @return the String representation
     */
-  def asciify(image: BufferedImage) = ??? // TODO 2
 
   /*
     Hints:

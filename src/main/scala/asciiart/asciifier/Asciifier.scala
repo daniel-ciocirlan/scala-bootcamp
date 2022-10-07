@@ -37,10 +37,12 @@ trait Asciifier {
     * @return the corresponding character from Asciifier.asciiChars
     */
   // brightness / 255 * list.length => approximate index of the char
-  def chooseChar(brightness: Double): Char = {
-    val index = (brightness  / 255 * (asciiChars.length - 1)).toInt // make sure I round this down
-    asciiChars(index)
-  }
+  def chooseChar(brightness: Double): Char =
+    if (brightness == 0) ' '
+    else {
+      val index = (brightness  / 255 * (asciiChars.length - 1)).toInt // make sure I round this down
+      asciiChars(index)
+    }
 
   /**
     * Turns a BufferedImage into a "matrix" of values obtained by applying a function to every pixel in the image.
@@ -57,13 +59,17 @@ trait Asciifier {
       xxxxxx
 
       mapImage(image)(color => chooseChar(computeBrightness(color))) => Seq(Seq(chars))
-
-
+      |-----------------------------x = column index
+      |
+      |
+      |
+      |
+      y = row index
      */
   def mapImage[A](image: BufferedImage)(f: Color => A): Seq[Seq[A]] =
-    (0 until image.getHeight).map { rowIndex =>
+    (0 until image.getHeight).map { y =>
       // build an entire row of characters
-      val colors: Seq[Color] = (0 until image.getWidth).map(colIndex => new Color(image.getRGB(rowIndex, colIndex)))
+      val colors: Seq[Color] = (0 until image.getWidth).map(x => new Color(image.getRGB(x, y)))
       colors.map(x => f(x)) // transforms the Seq[Color] into Seq[A]
       // .. FOR EVERY ROW!
     }

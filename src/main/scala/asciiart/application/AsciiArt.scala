@@ -1,6 +1,6 @@
 package asciiart.application
 
-import asciiart.asciifier.{Asciifier, PlainTextAsciifier}
+import asciiart.asciifier.{Asciifier, HtmlAsciifier, PlainTextAsciifier}
 import asciiart.imageloader.{FileLoader, ImageLoader}
 
 import java.awt.Color
@@ -30,12 +30,12 @@ trait AsciiArtApplication {
 
 object AsciiArt extends AsciiArtApplication {
 
-  override val asciifier = new PlainTextAsciifier
+  override val asciifier = new HtmlAsciifier
   override val imageLoader = new FileLoader
 
   def main(args: Array[String]): Unit = {
     // can read the file path from the command line
-    val path = "src/main/resources/fiery-lava 128x128.png"
+    val path = "src/main/resources/img.png"
 
     /*
       BufferedImage:
@@ -52,6 +52,10 @@ object AsciiArt extends AsciiArtApplication {
      */
     val bufferedImageOption = imageLoader.loadImage(path)
     println(bufferedImageOption.map(image => new Color(image.getRGB(75, 56)).getBlue))
+
+    // run the ascii application
+    val maybeAscii: Option[String] = run(path)
+    println(maybeAscii.getOrElse(""))
   }
 }
 
